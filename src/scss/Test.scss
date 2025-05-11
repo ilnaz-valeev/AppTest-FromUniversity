@@ -1,0 +1,220 @@
+// src/styles/Test.scss
+.test-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+
+    .progress {
+      height: 100%;
+      background-color: #4e73df;
+      transition: width 0.3s ease;
+    }
+  }
+
+  .question-counter {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-align: right;
+  }
+
+  .question-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #343a40;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .answers-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+
+    li {
+      margin-bottom: 0.8rem;
+    }
+
+    .answer-btn {
+      width: 100%;
+      padding: 1rem;
+      text-align: left;
+      background-color: white;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+      color: #495057;
+
+      &:hover {
+        background-color: #f1f3f5;
+        border-color: #adb5bd;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      &.correct {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+      }
+
+      &.incorrect {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+      }
+    }
+  }
+
+  .explanation {
+    background-color: #e7f5ff;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #4dabf7;
+
+    p {
+      margin: 0;
+      color: #1864ab;
+      line-height: 1.5;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+  }
+
+  .navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    .next-btn {
+      background-color: #4e73df;
+      color: white;
+
+      &:disabled {
+        background-color: #b2b2b2;
+        cursor: not-allowed;
+      }
+    }
+
+    .cancel-btn {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      border: 1px solid #dee2e6;
+    }
+  }
+
+  .results-container {
+    text-align: center;
+
+    h3 {
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+    }
+
+    .score {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+
+      .percentage {
+        font-weight: bold;
+        color: #4e73df;
+      }
+    }
+
+    .restart-btn {
+      padding: 0.8rem 1.5rem;
+      background-color: #4e73df;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 1rem;
+
+      &:hover {
+        background-color: #3a56b0;
+      }
+    }
+
+    .question-review {
+      margin-top: 2rem;
+      text-align: left;
+
+      .review-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+        &.correct {
+          border-left: 4px solid #28a745;
+        }
+
+        &.incorrect {
+          border-left: 4px solid #dc3545;
+        }
+
+        p {
+          margin: 0.5rem 0;
+          color: #495057;
+        }
+
+        .correct-answer {
+          color: #28a745;
+          font-weight: 500;
+        }
+
+        .user-answer {
+          color: #dc3545;
+          font-weight: 500;
+        }
+
+        .result-label {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
