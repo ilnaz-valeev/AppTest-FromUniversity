@@ -1,220 +1,178 @@
 // src/styles/Test.scss
 .test-container {
   max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0 auto;
+  padding: 20px;
 
   h2 {
-    color: #2c3e50;
     text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
+  }
+}
+
+.questions-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+  justify-content: center;
+}
+
+.question-square {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #333;
+  font-weight: bold;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+
+  &.current {
+    background-color: #2196F3;
+    color: white;
   }
 
-  .progress-bar {
-    width: 100%;
-    height: 8px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-
-    .progress {
-      height: 100%;
-      background-color: #4e73df;
-      transition: width 0.3s ease;
-    }
+  &.correct {
+    background-color: #4CAF50;
+    color: white;
   }
 
-  .question-counter {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    text-align: right;
+  &.incorrect {
+    background-color: #F44336;
+    color: white;
+  }
+}
+
+.question-content {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+
+  .question-number {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
   }
 
   .question-text {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+}
+
+.answers-list {
+  list-style-type: none;
+  padding: 0;
+
+  li {
+    margin: 5px 0;
+  }
+}
+
+.answer-button {
+  padding: 12px;
+  margin: 8px 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &.correct-answer {
+    background-color: #e8f5e9;
+    border: 1px solid #4CAF50;
+  }
+
+  &.incorrect-answer {
+    background-color: #ffebee;
+    border: 1px solid #F44336;
+  }
+}
+
+.explanation-box {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #e3f2fd;
+  border-radius: 5px;
+  border-left: 4px solid #2196F3;
+
+  .explanation-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+
+  button {
+    padding: 10px 25px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .next-button {
+    background-color: #4CAF50;
+  }
+
+  .cancel-button {
+    background-color: #f44336;
+  }
+}
+
+.results-container {
+  text-align: center;
+  padding: 20px;
+
+  .score {
+    margin: 20px 0;
     font-size: 1.2rem;
-    font-weight: 500;
-    color: #343a40;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
   }
 
-  .answers-list {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 2rem;
-
-    li {
-      margin-bottom: 0.8rem;
-    }
-
-    .answer-btn {
-      width: 100%;
-      padding: 1rem;
-      text-align: left;
-      background-color: white;
-      border: 2px solid #dee2e6;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-size: 1rem;
-      color: #495057;
-
-      &:hover {
-        background-color: #f1f3f5;
-        border-color: #adb5bd;
-      }
-
-      &:disabled {
-        cursor: not-allowed;
-        opacity: 0.7;
-      }
-
-      &.correct {
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-        color: #155724;
-      }
-
-      &.incorrect {
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-        color: #721c24;
-      }
-    }
+  .restart-button {
+    padding: 10px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 20px;
   }
+}
 
-  .explanation {
-    background-color: #e7f5ff;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid #4dabf7;
+.question-review {
+  margin-top: 30px;
+  text-align: left;
 
-    p {
-      margin: 0;
-      color: #1864ab;
-      line-height: 1.5;
+  .review-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+
+    .correct-answer {
+      color: #4CAF50;
+      font-weight: bold;
     }
 
-    strong {
-      font-weight: 600;
-    }
-  }
-
-  .navigation-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-
-    button {
-      padding: 0.8rem 1.5rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-
-      &:hover {
-        opacity: 0.9;
-      }
-    }
-
-    .next-btn {
-      background-color: #4e73df;
-      color: white;
-
-      &:disabled {
-        background-color: #b2b2b2;
-        cursor: not-allowed;
-      }
-    }
-
-    .cancel-btn {
-      background-color: #f8f9fa;
-      color: #6c757d;
-      border: 1px solid #dee2e6;
-    }
-  }
-
-  .results-container {
-    text-align: center;
-
-    h3 {
-      color: #2c3e50;
-      margin-bottom: 1.5rem;
-    }
-
-    .score {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-
-      .percentage {
-        font-weight: bold;
-        color: #4e73df;
-      }
-    }
-
-    .restart-btn {
-      padding: 0.8rem 1.5rem;
-      background-color: #4e73df;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      margin-top: 1rem;
-
-      &:hover {
-        background-color: #3a56b0;
-      }
-    }
-
-    .question-review {
-      margin-top: 2rem;
-      text-align: left;
-
-      .review-item {
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 8px;
-        background-color: white;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-
-        &.correct {
-          border-left: 4px solid #28a745;
-        }
-
-        &.incorrect {
-          border-left: 4px solid #dc3545;
-        }
-
-        p {
-          margin: 0.5rem 0;
-          color: #495057;
-        }
-
-        .correct-answer {
-          color: #28a745;
-          font-weight: 500;
-        }
-
-        .user-answer {
-          color: #dc3545;
-          font-weight: 500;
-        }
-
-        .result-label {
-          font-weight: 600;
-        }
-      }
+    .user-answer {
+      color: #F44336;
+      font-weight: bold;
     }
   }
 }

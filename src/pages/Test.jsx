@@ -1,6 +1,7 @@
 // src/pages/Test.js
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import "../css/Test.min.css";
 
 const shuffleArray = (array) => {
   let shuffledArray = [...array];
@@ -48,7 +49,6 @@ const Test = ({ subjects }) => {
     const currentQuestion = questions[currentQuestionIndex];
     const isCorrect = selectedAnswerIndex === currentQuestion.correct;
 
-    // Обновляем или добавляем ответ
     const updatedAnswers = answeredQuestions.filter(
       (answer) => answer.questionIndex !== currentQuestionIndex
     );
@@ -132,83 +132,68 @@ const Test = ({ subjects }) => {
     const percentage = ((correctAnswers / totalAnswers) * 100).toFixed(2);
 
     return (
-      <div>
+      <div className="results-container">
         <p>Вы завершили тест!</p>
-        <p>
+        <p className="score">
           Вы ответили правильно на {correctAnswers} из {totalAnswers} вопросов.
+          <br />
+          Ваш результат: {percentage}%
         </p>
-        <p>Ваш результат: {percentage}%</p>
 
-        <div>
+        <div className="question-review">
           <h3>Решенные вопросы:</h3>
           {answeredQuestions.map((answer, index) => {
             const question = questions[answer.questionIndex];
             return (
-              <div key={index}>
+              <div key={index} className="review-item">
                 <p>
-                  Вопрос {answer.questionIndex + 1}: {question.question} <br />
-                  Ответ: {question.answers[question.correct]} (Правильный ответ)
-                  <br />
-                  Ваш ответ: {question.answers[answer.selectedAnswerIndex]}{" "}
-                  <br />
-                  {answer.isCorrect ? "Правильный" : "Неправильный"}
+                  <strong>Вопрос {answer.questionIndex + 1}:</strong>{" "}
+                  {question.question}
                 </p>
+                <p className="correct-answer">
+                  Правильный ответ: {question.answers[question.correct]}
+                </p>
+                {!answer.isCorrect && (
+                  <p className="user-answer">
+                    Ваш ответ: {question.answers[answer.selectedAnswerIndex]}
+                  </p>
+                )}
+                <p>{answer.isCorrect ? "✓ Правильно" : "✗ Неправильно"}</p>
               </div>
             );
           })}
         </div>
 
-        <button onClick={restartTest}>Пройти тест заново</button>
+        <button className="restart-button" onClick={restartTest}>
+          Пройти тест заново
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
-      <h2 style={{ textAlign: "center" }}>
+    <div className="test-container">
+      <h2>
         Тест по {subjectName} - {topicName}
       </h2>
 
-      {/* Панель навигации по вопросам */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "10px",
-          margin: "20px 0",
-          justifyContent: "center",
-        }}
-      >
+      <div className="questions-navigation">
         {questions.map((_, index) => {
           const answer = answeredQuestions.find(
             (answer) => answer.questionIndex === index
           );
 
-          const squareStyle = {
-            width: "40px",
-            height: "40px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            border: "2px solid #333",
-            backgroundColor: answer
-              ? answer.isCorrect
-                ? "#4CAF50"
-                : "#F44336"
-              : index === currentQuestionIndex
-              ? "#2196F3"
-              : "#fff",
-            color: answer || index === currentQuestionIndex ? "#fff" : "#333",
-            fontWeight: "bold",
-            borderRadius: "5px",
-            transition: "all 0.3s ease",
-          };
+          let squareClass = "";
+          if (answer) {
+            squareClass = answer.isCorrect ? "correct" : "incorrect";
+          } else if (index === currentQuestionIndex) {
+            squareClass = "current";
+          }
 
           return (
             <div
               key={index}
-              style={squareStyle}
+              className={`question-square ${squareClass}`}
               onClick={() => goToQuestion(index)}
               title={`Вопрос ${index + 1}`}
             >
@@ -218,65 +203,33 @@ const Test = ({ subjects }) => {
         })}
       </div>
 
-      <div
-        style={{
-          backgroundColor: "#f8f9fa",
-          padding: "20px",
-          borderRadius: "10px",
-          marginBottom: "20px",
-        }}
-      >
-        <p
-          style={{
-            fontSize: "1.2rem",
-            fontWeight: "bold",
-            marginBottom: "20px",
-          }}
-        >
+      <div className="question-content">
+        <p className="question-number">
           Вопрос {currentQuestionIndex + 1} из {questions.length}
         </p>
 
-        <p style={{ fontSize: "1.1rem", marginBottom: "20px" }}>
-          {currentQuestion.question}
-        </p>
+        <p className="question-text">{currentQuestion.question}</p>
 
-        <ul style={{ listStyleType: "none", padding: 0 }}>
+        <ul className="answers-list">
           {currentQuestion.answers.map((answer, index) => {
-            // Определяем стиль для каждого варианта ответа
-            let answerStyle = {
-              padding: "12px",
-              margin: "8px 0",
-              width: "100%",
-              textAlign: "left",
-              cursor: isAnswered ? "not-allowed" : "pointer",
-              border: "1px solid #ddd",
-              borderRadius: "5px",
-              backgroundColor: "#fff",
-              transition: "all 0.3s ease",
-            };
-
-            // Если это правильный ответ и вопрос отвечен - зеленый
-            if (currentAnswer && index === currentQuestion.correct) {
-              answerStyle.backgroundColor = "#e8f5e9";
-              answerStyle.border = "1px solid #4CAF50";
-            }
-
-            // Если это выбранный ответ (и он неправильный) - красный
-            if (
-              currentAnswer &&
-              currentAnswer.selectedAnswerIndex === index &&
-              !currentAnswer.isCorrect
-            ) {
-              answerStyle.backgroundColor = "#ffebee";
-              answerStyle.border = "1px solid #F44336";
+            let buttonClass = "";
+            if (currentAnswer) {
+              if (index === currentQuestion.correct) {
+                buttonClass = "correct-answer";
+              } else if (
+                currentAnswer.selectedAnswerIndex === index &&
+                !currentAnswer.isCorrect
+              ) {
+                buttonClass = "incorrect-answer";
+              }
             }
 
             return (
-              <li key={index} style={{ margin: "5px 0" }}>
+              <li key={index}>
                 <button
+                  className={`answer-button ${buttonClass}`}
                   onClick={() => handleAnswer(index)}
                   disabled={isAnswered}
-                  style={answerStyle}
                 >
                   {answer}
                 </button>
@@ -286,53 +239,21 @@ const Test = ({ subjects }) => {
         </ul>
 
         {showExplanation && currentQuestion.explanation && (
-          <div
-            style={{
-              marginTop: "20px",
-              padding: "15px",
-              backgroundColor: "#e3f2fd",
-              borderRadius: "5px",
-              borderLeft: "4px solid #2196F3",
-            }}
-          >
-            <p style={{ fontWeight: "bold", marginBottom: "10px" }}>
-              Объяснение:
-            </p>
+          <div className="explanation-box">
+            <p className="explanation-title">Объяснение:</p>
             <p>{currentQuestion.explanation}</p>
           </div>
         )}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+      <div className="navigation-buttons">
         {isAnswered && (
-          <button
-            onClick={goToNextQuestion}
-            style={{
-              padding: "10px 25px",
-              backgroundColor: "#4CAF50",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontSize: "1rem",
-            }}
-          >
+          <button className="next-button" onClick={goToNextQuestion}>
             Следующий вопрос
           </button>
         )}
 
-        <button
-          onClick={cancelTest}
-          style={{
-            padding: "10px 25px",
-            backgroundColor: "#f44336",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            fontSize: "1rem",
-          }}
-        >
+        <button className="cancel-button" onClick={cancelTest}>
           Завершить тест
         </button>
       </div>

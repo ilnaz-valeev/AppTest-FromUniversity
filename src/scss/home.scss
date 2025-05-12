@@ -1,0 +1,78 @@
+// src/styles/Home.scss
+.home-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  h1 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+    font-weight: 600;
+  }
+
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .subject-card {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border: 1px solid #e9ecef;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        border-color: #4e73df;
+      }
+
+      .subject-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+
+        .subject-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+          color: #4e73df;
+        }
+
+        .subject-name {
+          font-size: 1.5rem;
+          font-weight: 500;
+          color: #343a40;
+          margin-bottom: 0.5rem;
+        }
+
+        .subject-description {
+          color: #6c757d;
+          font-size: 1rem;
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 1.5rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    .subjects-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
