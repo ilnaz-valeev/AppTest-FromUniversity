@@ -1,20 +1,12 @@
-// src/pages/Test.js
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../css/Test.min.css";
-
-const shuffleArray = (array) => {
-  let shuffledArray = [...array];
-  for (let i = shuffledArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-  }
-  return shuffledArray;
-};
 
 const Test = ({ subjects }) => {
   const { subjectName, topicName } = useParams();
-  const [questions, setQuestions] = useState([]);
+  const navigate = useNavigate();
+  const [allQuestions, setAllQuestions] = useState([]);
+  const [currentQuestions, setCurrentQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -22,179 +14,469 @@ const Test = ({ subjects }) => {
   const [testCompleted, setTestCompleted] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
-  const [isTestCancelled, setIsTestCancelled] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [fillBlankAnswer, setFillBlankAnswer] = useState("");
+  const [matchingAnswers, setMatchingAnswers] = useState({});
+  const questionsPerPage = 5;
 
   useEffect(() => {
     const subject = subjects[subjectName];
     if (subject) {
-      let allQuestions = [];
+      let questions = [];
       if (topicName === "all") {
-        allQuestions = subject.topics.flatMap((topic) => topic.questions);
+        questions = subject.topics.flatMap((topic) => topic.questions);
       } else {
         const topic = subject.topics.find((t) => t.name === topicName);
-        if (topic) {
-          allQuestions = topic.questions;
-        }
+        if (topic) questions = topic.questions;
       }
-
-      const shuffledQuestions = shuffleArray(allQuestions);
-      setQuestions(shuffledQuestions);
+      const shuffled = shuffleArray(questions);
+      setAllQuestions(shuffled);
+      setCurrentQuestions(shuffled.slice(0, questionsPerPage));
+      setLoading(false);
     }
-    setLoading(false);
   }, [subjectName, topicName, subjects]);
 
-  const handleAnswer = (selectedAnswerIndex) => {
-    if (!questions || !questions[currentQuestionIndex]) return;
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
-    const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = selectedAnswerIndex === currentQuestion.correct;
+  const loadNextQuestions = () => {
+    const nextPage = currentPage + 1;
+    const startIndex = nextPage * questionsPerPage;
+    const endIndex = startIndex + questionsPerPage;
 
-    const updatedAnswers = answeredQuestions.filter(
-      (answer) => answer.questionIndex !== currentQuestionIndex
-    );
+    if (startIndex < allQuestions.length) {
+      setCurrentQuestions((prev) => [
+        ...prev,
+        ...allQuestions.slice(startIndex, endIndex),
+      ]);
+      setCurrentPage(nextPage);
+    }
+  };
+
+  const handleAnswer = () => {
+    const currentQuestion = currentQuestions[currentQuestionIndex];
+    let isCorrect = false;
+
+    switch (currentQuestion.type) {
+      case "multiple":
+        isCorrect =
+          JSON.stringify([...selectedOptions].sort()) ===
+          JSON.stringify([...currentQuestion.correct].sort());
+        break;
+      case "fill_blank":
+        isCorrect =
+          fillBlankAnswer.trim().toLowerCase() ===
+          currentQuestion.correct.trim().toLowerCase();
+        break;
+      case "matching":
+        isCorrect =
+          JSON.stringify(matchingAnswers) ===
+          JSON.stringify(currentQuestion.correct);
+        break;
+      default:
+        isCorrect = selectedOptions[0] === currentQuestion.correct;
+    }
+
     setAnsweredQuestions([
-      ...updatedAnswers,
-      { questionIndex: currentQuestionIndex, selectedAnswerIndex, isCorrect },
+      ...answeredQuestions,
+      {
+        questionIndex: currentQuestionIndex,
+        selectedAnswer:
+          currentQuestion.type === "multiple"
+            ? selectedOptions
+            : currentQuestion.type === "fill_blank"
+            ? fillBlankAnswer
+            : currentQuestion.type === "matching"
+            ? matchingAnswers
+            : selectedOptions[0],
+        isCorrect,
+      },
     ]);
 
     setIsAnswered(true);
     setIsAnswerCorrect(isCorrect);
 
     if (isCorrect) {
-      goToNextQuestion();
+      setTimeout(goToNextQuestion, 1000);
     } else {
       setShowExplanation(true);
     }
   };
 
+  const handleFillBlankChange = (e) => {
+    setFillBlankAnswer(e.target.value);
+  };
+
+  const handleOptionSelect = (optionIndex) => {
+    if (selectedOptions.includes(optionIndex)) {
+      setSelectedOptions(
+        selectedOptions.filter((item) => item !== optionIndex)
+      );
+    } else {
+      setSelectedOptions([...selectedOptions, optionIndex]);
+    }
+  };
+
+  const handleMatchingSelect = (leftItem, rightItem) => {
+    setMatchingAnswers({
+      ...matchingAnswers,
+      [leftItem]: rightItem,
+    });
+  };
+
   const goToNextQuestion = () => {
-    if (currentQuestionIndex + 1 < questions.length) {
+    if (currentQuestionIndex + 1 < currentQuestions.length) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setShowExplanation(false);
-      updateAnswerState(currentQuestionIndex + 1);
+    } else if ((currentPage + 1) * questionsPerPage < allQuestions.length) {
+      loadNextQuestions();
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setTestCompleted(true);
     }
+    resetAnswerState();
   };
 
-  const updateAnswerState = (index) => {
-    const answer = answeredQuestions.find(
-      (answer) => answer.questionIndex === index
-    );
-    setIsAnswered(!!answer);
-    setIsAnswerCorrect(answer?.isCorrect ?? null);
+  const goToPreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      resetAnswerState();
+    }
   };
 
-  const restartTest = () => {
-    setAnsweredQuestions([]);
-    setCurrentQuestionIndex(0);
-    setTestCompleted(false);
+  const resetAnswerState = () => {
+    setSelectedOptions([]);
+    setFillBlankAnswer("");
+    setMatchingAnswers({});
     setShowExplanation(false);
     setIsAnswered(false);
     setIsAnswerCorrect(null);
-    setIsTestCancelled(false);
   };
 
   const cancelTest = () => {
-    const confirmCancel = window.confirm(
-      "Вы уверены, что хотите завершить тест досрочно?"
-    );
-    if (confirmCancel) {
-      setIsTestCancelled(true);
+    if (window.confirm("Вы уверены, что хотите завершить тест досрочно?")) {
       setTestCompleted(true);
     }
   };
 
-  const goToQuestion = (index) => {
-    setCurrentQuestionIndex(index);
-    setShowExplanation(false);
-    updateAnswerState(index);
+  const restartTest = () => {
+    setCurrentQuestionIndex(0);
+    setAnsweredQuestions([]);
+    setTestCompleted(false);
+    setCurrentPage(0);
+    setCurrentQuestions(allQuestions.slice(0, questionsPerPage));
+    resetAnswerState();
   };
 
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
+  const returnToMain = () => {
+    if (window.confirm("Вы уверены, что хотите прервать тест?")) {
+      navigate("/");
+    }
+  };
 
-  if (!questions || questions.length === 0) {
-    return <div>Вопросы не найдены</div>;
-  }
+  const renderQuestionContent = () => {
+    const currentQuestion = currentQuestions[currentQuestionIndex];
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const currentAnswer = answeredQuestions.find(
-    (answer) => answer.questionIndex === currentQuestionIndex
-  );
+    switch (currentQuestion.type) {
+      case "multiple":
+        return (
+          <div className="multiple-choice">
+            <p>Выберите один или несколько правильных ответов:</p>
+            <ul className="answers-list">
+              {currentQuestion.answers.map((answer, index) => (
+                <li key={index}>
+                  <label className="multiple-option">
+                    <input
+                      type="checkbox"
+                      checked={selectedOptions.includes(index)}
+                      onChange={() => handleOptionSelect(index)}
+                      disabled={isAnswered}
+                    />
+                    <span>{answer}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="submit-answer"
+              onClick={handleAnswer}
+              disabled={isAnswered || selectedOptions.length === 0}
+            >
+              Ответить
+            </button>
+          </div>
+        );
 
-  if (testCompleted || isTestCancelled) {
-    const correctAnswers = answeredQuestions.filter(
-      (answer) => answer.isCorrect
-    ).length;
-    const totalAnswers = answeredQuestions.length;
-    const percentage = ((correctAnswers / totalAnswers) * 100).toFixed(2);
+      case "fill_blank":
+        return (
+          <div className="fill-blank-container">
+            <p className="question-text">
+              {currentQuestion.question.split("____________")[0]}
+              <span className="blank-space">____________</span>
+              {currentQuestion.question.split("____________")[1]}
+            </p>
+            <div className="fill-blank-input-container">
+              <input
+                type="text"
+                value={fillBlankAnswer}
+                onChange={handleFillBlankChange}
+                disabled={isAnswered}
+                placeholder="Введите ответ"
+                className="fill-blank-input"
+              />
+              <button
+                className="submit-fill-blank"
+                onClick={handleAnswer}
+                disabled={isAnswered || !fillBlankAnswer.trim()}
+              >
+                Ответить
+              </button>
+            </div>
+          </div>
+        );
+
+      case "matching":
+        return (
+          <div className="matching-question">
+            <p>Установите соответствия:</p>
+            <div className="matching-columns">
+              <div className="matching-left">
+                {currentQuestion.leftItems.map((item, index) => (
+                  <div key={index} className="matching-item">
+                    {item}
+                  </div>
+                ))}
+              </div>
+              <div className="matching-right">
+                {currentQuestion.rightItems.map((item, index) => (
+                  <div key={index} className="matching-item">
+                    <select
+                      value={
+                        matchingAnswers[currentQuestion.leftItems[index]] || ""
+                      }
+                      onChange={(e) =>
+                        handleMatchingSelect(
+                          currentQuestion.leftItems[index],
+                          e.target.value
+                        )
+                      }
+                      disabled={isAnswered}
+                    >
+                      <option value="">Выберите соответствие</option>
+                      {currentQuestion.rightItems.map((rightItem, idx) => (
+                        <option key={idx} value={rightItem}>
+                          {rightItem}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button
+              className="submit-answer"
+              onClick={handleAnswer}
+              disabled={
+                isAnswered ||
+                Object.keys(matchingAnswers).length <
+                  currentQuestion.leftItems.length
+              }
+            >
+              Ответить
+            </button>
+          </div>
+        );
+
+      default:
+        return (
+          <ul className="answers-list">
+            {currentQuestion.answers.map((answer, index) => {
+              let buttonClass = "";
+              if (isAnswered) {
+                if (index === currentQuestion.correct) {
+                  buttonClass = "correct-answer";
+                } else if (selectedOptions[0] === index && !isAnswerCorrect) {
+                  buttonClass = "incorrect-answer";
+                }
+              }
+
+              return (
+                <li key={index}>
+                  <button
+                    className={`answer-button ${buttonClass}`}
+                    onClick={() => {
+                      setSelectedOptions([index]);
+                      handleAnswer();
+                    }}
+                    disabled={isAnswered}
+                  >
+                    {answer}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        );
+    }
+  };
+
+  const ResultsScreen = () => {
+    const correctAnswers = answeredQuestions.filter((q) => q.isCorrect).length;
+    const totalQuestions = answeredQuestions.length;
+    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
 
     return (
       <div className="results-container">
-        <p>Вы завершили тест!</p>
+        <h2>Тест завершен!</h2>
         <p className="score">
-          Вы ответили правильно на {correctAnswers} из {totalAnswers} вопросов.
-          <br />
-          Ваш результат: {percentage}%
+          Правильных ответов: {correctAnswers} из {totalQuestions} ({percentage}
+          %)
         </p>
 
-        <div className="question-review">
-          <h3>Решенные вопросы:</h3>
-          {answeredQuestions.map((answer, index) => {
-            const question = questions[answer.questionIndex];
+        <div className="detailed-results">
+          <h3>Детализация:</h3>
+          {answeredQuestions.map((answer, idx) => {
+            const question =
+              allQuestions.find((q) => q.id === answer.questionId) ||
+              currentQuestions[answer.questionIndex];
+
             return (
-              <div key={index} className="review-item">
+              <div
+                key={idx}
+                className={`result-item ${
+                  answer.isCorrect ? "correct" : "incorrect"
+                }`}
+              >
                 <p>
                   <strong>Вопрос {answer.questionIndex + 1}:</strong>{" "}
                   {question.question}
                 </p>
-                <p className="correct-answer">
-                  Правильный ответ: {question.answers[question.correct]}
-                </p>
                 {!answer.isCorrect && (
-                  <p className="user-answer">
-                    Ваш ответ: {question.answers[answer.selectedAnswerIndex]}
+                  <>
+                    <p className="correct-answer">
+                      Правильный ответ: {formatCorrectAnswer(question)}
+                    </p>
+                    <p className="user-answer">
+                      Ваш ответ:{" "}
+                      {formatUserAnswer(answer.selectedAnswer, question.type)}
+                    </p>
+                  </>
+                )}
+                {question.explanation && (
+                  <p className="explanation">
+                    Объяснение: {question.explanation}
                   </p>
                 )}
-                <p>{answer.isCorrect ? "✓ Правильно" : "✗ Неправильно"}</p>
               </div>
             );
           })}
         </div>
 
-        <button className="restart-button" onClick={restartTest}>
-          Пройти тест заново
-        </button>
+        <div className="results-buttons">
+          <button className="restart-button" onClick={restartTest}>
+            Начать заново
+          </button>
+          <button className="home-button" onClick={returnToMain}>
+            На главную
+          </button>
+        </div>
       </div>
     );
-  }
+  };
+
+  const formatCorrectAnswer = (question) => {
+    switch (question.type) {
+      case "multiple":
+        return question.correct.map((idx) => question.answers[idx]).join(", ");
+      case "fill_blank":
+        return question.correct;
+      case "matching":
+        return Object.entries(question.correct)
+          .map(([left, right]) => `${left} → ${right}`)
+          .join(", ");
+      default:
+        return question.answers[question.correct];
+    }
+  };
+
+  const formatUserAnswer = (answer, type) => {
+    if (!answer) return "Нет ответа";
+
+    switch (type) {
+      case "multiple":
+        return answer
+          .map((idx) => currentQuestions[currentQuestionIndex].answers[idx])
+          .join(", ");
+      case "fill_blank":
+        return answer;
+      case "matching":
+        return Object.entries(answer)
+          .map(([left, right]) => `${left} → ${right}`)
+          .join(", ");
+      default:
+        return currentQuestions[currentQuestionIndex].answers[answer];
+    }
+  };
+
+  if (loading) return <div className="loading">Загрузка вопросов...</div>;
+  if (!allQuestions.length)
+    return <div className="no-questions">Вопросы не найдены</div>;
+  if (testCompleted) return <ResultsScreen />;
+
+  const currentQuestion = currentQuestions[currentQuestionIndex];
 
   return (
     <div className="test-container">
-      <h2>
-        Тест по {subjectName} - {topicName}
+      <h2 className="test-title">
+        Тест по {subjectName} {topicName !== "all" && `- ${topicName}`}
       </h2>
 
-      <div className="questions-navigation">
-        {questions.map((_, index) => {
-          const answer = answeredQuestions.find(
-            (answer) => answer.questionIndex === index
-          );
+      <div className="progress-container">
+        <div className="progress-text">
+          Вопрос {currentQuestionIndex + 1} из {allQuestions.length}
+        </div>
+        <div className="progress-bar">
+          <div
+            className="progress-fill"
+            style={{
+              width: `${
+                ((currentQuestionIndex + 1) / allQuestions.length) * 100
+              }%`,
+            }}
+          ></div>
+        </div>
+      </div>
 
+      <div className="questions-navigation">
+        {currentQuestions.map((_, index) => {
+          const answer = answeredQuestions.find(
+            (q) => q.questionIndex === index
+          );
           let squareClass = "";
           if (answer) {
             squareClass = answer.isCorrect ? "correct" : "incorrect";
           } else if (index === currentQuestionIndex) {
             squareClass = "current";
           }
-
           return (
             <div
               key={index}
               className={`question-square ${squareClass}`}
-              onClick={() => goToQuestion(index)}
+              onClick={() => {
+                if (
+                  index <= currentQuestionIndex ||
+                  answeredQuestions.some((q) => q.questionIndex === index)
+                ) {
+                  setCurrentQuestionIndex(index);
+                  resetAnswerState();
+                }
+              }}
               title={`Вопрос ${index + 1}`}
             >
               {index + 1}
@@ -204,39 +486,7 @@ const Test = ({ subjects }) => {
       </div>
 
       <div className="question-content">
-        <p className="question-number">
-          Вопрос {currentQuestionIndex + 1} из {questions.length}
-        </p>
-
-        <p className="question-text">{currentQuestion.question}</p>
-
-        <ul className="answers-list">
-          {currentQuestion.answers.map((answer, index) => {
-            let buttonClass = "";
-            if (currentAnswer) {
-              if (index === currentQuestion.correct) {
-                buttonClass = "correct-answer";
-              } else if (
-                currentAnswer.selectedAnswerIndex === index &&
-                !currentAnswer.isCorrect
-              ) {
-                buttonClass = "incorrect-answer";
-              }
-            }
-
-            return (
-              <li key={index}>
-                <button
-                  className={`answer-button ${buttonClass}`}
-                  onClick={() => handleAnswer(index)}
-                  disabled={isAnswered}
-                >
-                  {answer}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        {renderQuestionContent()}
 
         {showExplanation && currentQuestion.explanation && (
           <div className="explanation-box">
@@ -246,16 +496,35 @@ const Test = ({ subjects }) => {
         )}
       </div>
 
-      <div className="navigation-buttons">
-        {isAnswered && (
-          <button className="next-button" onClick={goToNextQuestion}>
-            Следующий вопрос
+      <div className="navigation-container">
+        <div className="question-navigation">
+          {currentQuestionIndex > 0 && (
+            <button
+              className="nav-button prev-button"
+              onClick={goToPreviousQuestion}
+            >
+              ◀ Назад
+            </button>
+          )}
+          <button
+            className={`nav-button next-button ${isAnswered ? "active" : ""}`}
+            onClick={goToNextQuestion}
+            disabled={!isAnswered}
+          >
+            {currentQuestionIndex + 1 === allQuestions.length
+              ? "Завершить"
+              : "Далее ▶"}
           </button>
-        )}
+        </div>
 
-        <button className="cancel-button" onClick={cancelTest}>
-          Завершить тест
-        </button>
+        <div className="control-buttons">
+          <button className="control-button home-button" onClick={returnToMain}>
+            🏠 Выбрать предмет
+          </button>
+          <button className="control-button cancel-button" onClick={cancelTest}>
+            🏁 Завершить тест
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,178 +1,574 @@
-// src/styles/Test.scss
-.test-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+/* Базовые переменные */
+$primary-color: #4a89dc;
+$success-color: #48cfad;
+$danger-color: #ed5565;
+$warning-color: #ffce54;
+$light-gray: #f5f7fa;
+$dark-gray: #656d78;
+$text-color: #434a54;
+$border-radius: 8px;
+$box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+$transition: all 0.3s ease;
 
-  h2 {
+/* Базовые стили */
+.test-container {
+  max-width: 100%;
+  padding: 1rem;
+  margin: 0 auto;
+  color: $text-color;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Заголовок теста */
+.test-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: $primary-color;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+/* Индикатор прогресса */
+.progress-container {
+  margin-bottom: 1.5rem;
+
+  .progress-text {
     text-align: center;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background-color: $light-gray;
+    border-radius: 3px;
+    overflow: hidden;
+
+    .progress-fill {
+      height: 100%;
+      background-color: $primary-color;
+      transition: width 0.3s ease;
+    }
   }
 }
 
+/* Навигация по вопросам */
 .questions-navigation {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 0.5rem;
   justify-content: center;
-}
+  margin: 1.5rem 0;
 
-.question-square {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border: 2px solid #333;
-  font-weight: bold;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-
-  &.current {
-    background-color: #2196F3;
-    color: white;
-  }
-
-  &.correct {
-    background-color: #4CAF50;
-    color: white;
-  }
-
-  &.incorrect {
-    background-color: #F44336;
-    color: white;
-  }
-}
-
-.question-content {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-
-  .question-number {
-    font-size: 1.2rem;
+  .question-square {
+    width: 2.8rem;
+    height: 2.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid $primary-color;
+    border-radius: $border-radius;
     font-weight: bold;
-    margin-bottom: 20px;
-  }
+    cursor: pointer;
+    transition: $transition;
+    font-size: 0.9rem;
 
-  .question-text {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
+    &.current {
+      background-color: $primary-color;
+      color: white;
+    }
+
+    &.correct {
+      background-color: $success-color;
+      border-color: $success-color;
+      color: white;
+    }
+
+    &.incorrect {
+      background-color: $danger-color;
+      border-color: $danger-color;
+      color: white;
+    }
+
+    &:hover:not(.current) {
+      transform: scale(1.05);
+    }
   }
 }
 
+/* Контент вопроса */
+.question-content {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: $border-radius;
+  margin-bottom: 1.5rem;
+  box-shadow: $box-shadow;
+}
+
+.question-text {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Варианты ответов */
 .answers-list {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 
   li {
-    margin: 5px 0;
+    margin: 0.5rem 0;
   }
 }
 
 .answer-button {
-  padding: 12px;
-  margin: 8px 0;
   width: 100%;
+  padding: 1rem;
   text-align: left;
-  cursor: pointer;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #fff;
-  transition: all 0.3s ease;
+  border-radius: $border-radius;
+  background-color: white;
+  transition: $transition;
+  font-size: 1rem;
+  cursor: pointer;
 
-  &:disabled {
-    cursor: not-allowed;
+  &:hover:not(:disabled) {
+    background-color: $light-gray;
+    border-color: $primary-color;
   }
 
   &.correct-answer {
-    background-color: #e8f5e9;
-    border: 1px solid #4CAF50;
+    background-color: lighten($success-color, 35%);
+    border-color: $success-color;
+    color: darken($success-color, 20%);
   }
 
   &.incorrect-answer {
-    background-color: #ffebee;
-    border: 1px solid #F44336;
+    background-color: lighten($danger-color, 35%);
+    border-color: $danger-color;
+    color: darken($danger-color, 20%);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
   }
 }
 
+/* Вопросы с множественным выбором */
+.multiple-choice {
+  .answers-list {
+    margin: 1rem 0;
+  }
+
+  .multiple-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: $light-gray;
+    }
+
+    input {
+      width: 1.2rem;
+      height: 1.2rem;
+      cursor: pointer;
+    }
+  }
+
+  .submit-answer {
+    margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Вопросы на заполнение пропуска */
+.fill-blank-container {
+  .blank-space {
+    background-color: #f0f0f0;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-style: italic;
+    color: #666;
+  }
+
+  .fill-blank-input-container {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    align-items: center;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+
+  .fill-blank-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid #ddd;
+    border-radius: $border-radius;
+    font-size: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+
+  .submit-fill-blank {
+    padding: 0.8rem 1.5rem;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+
+  .answer-feedback {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: $border-radius;
+
+    &.correct {
+      background-color: rgba($success-color, 0.1);
+      color: darken($success-color, 20%);
+    }
+
+    &.incorrect {
+      background-color: rgba($danger-color, 0.1);
+      color: darken($danger-color, 20%);
+    }
+
+    .explanation {
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+  }
+}
+
+/* Вопросы на соответствие */
+.matching-question {
+  .matching-columns {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+
+  .matching-left, .matching-right {
+    flex: 1;
+  }
+
+  .matching-item {
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: $border-radius;
+    background-color: white;
+
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: $border-radius;
+    }
+  }
+
+  .submit-answer {
+    margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Объяснение */
 .explanation-box {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #e3f2fd;
-  border-radius: 5px;
-  border-left: 4px solid #2196F3;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: lighten($primary-color, 40%);
+  border-radius: $border-radius;
+  border-left: 4px solid $primary-color;
 
   .explanation-title {
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 0.5rem;
+    color: $primary-color;
   }
 }
 
-.navigation-buttons {
+/* Навигационные кнопки */
+.navigation-container {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
 
-  button {
-    padding: 10px 25px;
-    color: white;
+  .question-navigation, .control-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .nav-button, .control-button {
+    padding: 0.8rem 1.5rem;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    border-radius: $border-radius;
     font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .prev-button {
+    background-color: $primary-color;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
   }
 
   .next-button {
-    background-color: #4CAF50;
+    background-color: $success-color;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($success-color, 10%);
+    }
+
+    &.active {
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  }
+
+  .home-button {
+    background-color: $dark-gray;
+    color: white;
+
+    &:hover {
+      background-color: darken($dark-gray, 10%);
+    }
   }
 
   .cancel-button {
-    background-color: #f44336;
+    background-color: $danger-color;
+    color: white;
+
+    &:hover {
+      background-color: darken($danger-color, 10%);
+    }
   }
 }
 
+/* Экран результатов */
 .results-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
   text-align: center;
-  padding: 20px;
 
   .score {
-    margin: 20px 0;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    margin: 1.5rem 0;
+    color: $primary-color;
   }
 
-  .restart-button {
-    padding: 10px 25px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-top: 20px;
+  .detailed-results {
+    text-align: left;
+    margin-top: 2rem;
+
+    .result-item {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border-radius: $border-radius;
+
+      &.correct {
+        background-color: rgba($success-color, 0.1);
+        border-left: 3px solid $success-color;
+      }
+
+      &.incorrect {
+        background-color: rgba($danger-color, 0.1);
+        border-left: 3px solid $danger-color;
+      }
+
+      .correct-answer {
+        color: $success-color;
+        font-weight: bold;
+        margin: 0.3rem 0;
+      }
+
+      .user-answer {
+        color: $danger-color;
+        margin: 0.3rem 0;
+      }
+
+      .explanation {
+        margin-top: 0.5rem;
+        font-style: italic;
+        color: $dark-gray;
+      }
+    }
+  }
+
+  .results-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: $border-radius;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+    }
+
+    .restart-button {
+      background-color: $primary-color;
+      color: white;
+
+      &:hover {
+        background-color: darken($primary-color, 10%);
+      }
+    }
+
+    .home-button {
+      background-color: $dark-gray;
+      color: white;
+
+      &:hover {
+        background-color: darken($dark-gray, 10%);
+      }
+    }
   }
 }
 
-.question-review {
-  margin-top: 30px;
-  text-align: left;
+/* Состояния загрузки */
+.loading, .no-questions {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 3rem;
+  color: $dark-gray;
+}
 
-  .review-item {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
+/* Адаптивность */
+@media (max-width: 768px) {
+  .test-container {
+    padding: 0.8rem;
+  }
 
-    .correct-answer {
-      color: #4CAF50;
-      font-weight: bold;
-    }
+  .test-title {
+    font-size: 1.5rem;
+  }
 
-    .user-answer {
-      color: #F44336;
-      font-weight: bold;
+  .question-content {
+    padding: 1rem;
+  }
+
+  .question-text {
+    font-size: 1.1rem;
+  }
+
+  .navigation-container {
+    .question-navigation, .control-buttons {
+      flex-direction: column;
     }
   }
+
+  .matching-question .matching-columns {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .question-square {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 0.8rem;
+  }
+
+  .answer-button {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .fill-blank-input-container {
+    flex-direction: column;
+  }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.question-content {
+  animation: fadeIn 0.3s ease-out;
 }
