@@ -60,28 +60,33 @@ const Test = ({ subjects }) => {
     }
   };
 
-  const handleAnswer = () => {
+  const handleAnswer = (selectedOption) => {
     const currentQuestion = currentQuestions[currentQuestionIndex];
     let isCorrect = false;
 
-    switch (currentQuestion.type) {
-      case "multiple":
-        isCorrect =
-          JSON.stringify([...selectedOptions].sort()) ===
-          JSON.stringify([...currentQuestion.correct].sort());
-        break;
-      case "fill_blank":
-        isCorrect =
-          fillBlankAnswer.trim().toLowerCase() ===
-          currentQuestion.correct.trim().toLowerCase();
-        break;
-      case "matching":
-        isCorrect =
-          JSON.stringify(matchingAnswers) ===
-          JSON.stringify(currentQuestion.correct);
-        break;
-      default:
-        isCorrect = selectedOptions[0] === currentQuestion.correct;
+    if (!currentQuestion.type || currentQuestion.type === "single") {
+      isCorrect = selectedOption === currentQuestion.correct;
+      setSelectedOptions([selectedOption]);
+    } else {
+      switch (currentQuestion.type) {
+        case "multiple":
+          isCorrect =
+            JSON.stringify([...selectedOptions].sort()) ===
+            JSON.stringify([...currentQuestion.correct].sort());
+          break;
+        case "fill_blank":
+          isCorrect =
+            fillBlankAnswer.trim().toLowerCase() ===
+            currentQuestion.correct.trim().toLowerCase();
+          break;
+        case "matching":
+          isCorrect =
+            JSON.stringify(matchingAnswers) ===
+            JSON.stringify(currentQuestion.correct);
+          break;
+        default:
+          isCorrect = selectedOptions[0] === currentQuestion.correct;
+      }
     }
 
     setAnsweredQuestions([
@@ -95,7 +100,7 @@ const Test = ({ subjects }) => {
             ? fillBlankAnswer
             : currentQuestion.type === "matching"
             ? matchingAnswers
-            : selectedOptions[0],
+            : selectedOption,
         isCorrect,
       },
     ]);
@@ -159,11 +164,16 @@ const Test = ({ subjects }) => {
     setIsAnswerCorrect(null);
   };
 
-  const cancelTest = () => {
-    if (window.confirm("Вы уверены, что хотите завершить тест досрочно?")) {
-      setTestCompleted(true);
-    }
-  };
+const cancelTest = () => {
+  if (window.confirm("Вы уверены, что хотите завершить тест досрочно?")) {
+    // Сохраняем только отвеченные вопросы
+    const answered = allQuestions.filter((_, index) =>
+      answeredQuestions.some((q) => q.questionIndex === index)
+    );
+    setCurrentQuestions(answered);
+    setTestCompleted(true);
+  }
+};
 
   const restartTest = () => {
     setCurrentQuestionIndex(0);
@@ -182,8 +192,9 @@ const Test = ({ subjects }) => {
 
   const renderQuestionContent = () => {
     const currentQuestion = currentQuestions[currentQuestionIndex];
+    const questionType = currentQuestion.type || "single";
 
-    switch (currentQuestion.type) {
+    switch (questionType) {
       case "multiple":
         return (
           <div className="multiple-choice">
@@ -205,7 +216,7 @@ const Test = ({ subjects }) => {
             </ul>
             <button
               className="submit-answer"
-              onClick={handleAnswer}
+              onClick={() => handleAnswer()}
               disabled={isAnswered || selectedOptions.length === 0}
             >
               Ответить
@@ -232,7 +243,7 @@ const Test = ({ subjects }) => {
               />
               <button
                 className="submit-fill-blank"
-                onClick={handleAnswer}
+                onClick={() => handleAnswer()}
                 disabled={isAnswered || !fillBlankAnswer.trim()}
               >
                 Ответить
@@ -281,7 +292,7 @@ const Test = ({ subjects }) => {
             </div>
             <button
               className="submit-answer"
-              onClick={handleAnswer}
+              onClick={() => handleAnswer()}
               disabled={
                 isAnswered ||
                 Object.keys(matchingAnswers).length <
@@ -293,6 +304,7 @@ const Test = ({ subjects }) => {
           </div>
         );
 
+      case "single":
       default:
         return (
           <ul className="answers-list">
@@ -310,10 +322,7 @@ const Test = ({ subjects }) => {
                 <li key={index}>
                   <button
                     className={`answer-button ${buttonClass}`}
-                    onClick={() => {
-                      setSelectedOptions([index]);
-                      handleAnswer();
-                    }}
+                    onClick={() => handleAnswer(index)}
                     disabled={isAnswered}
                   >
                     {answer}
@@ -342,9 +351,7 @@ const Test = ({ subjects }) => {
         <div className="detailed-results">
           <h3>Детализация:</h3>
           {answeredQuestions.map((answer, idx) => {
-            const question =
-              allQuestions.find((q) => q.id === answer.questionId) ||
-              currentQuestions[answer.questionIndex];
+            const question = currentQuestions[answer.questionIndex];
 
             return (
               <div
@@ -360,11 +367,16 @@ const Test = ({ subjects }) => {
                 {!answer.isCorrect && (
                   <>
                     <p className="correct-answer">
-                      Правильный ответ: {formatCorrectAnswer(question)}
+                      Правильный ответ:{" "}
+                      {formatCorrectAnswer(question, answer.questionIndex)}
                     </p>
                     <p className="user-answer">
                       Ваш ответ:{" "}
-                      {formatUserAnswer(answer.selectedAnswer, question.type)}
+                      {formatUserAnswer(
+                        answer.selectedAnswer,
+                        question.type,
+                        answer.questionIndex
+                      )}
                     </p>
                   </>
                 )}
@@ -390,39 +402,51 @@ const Test = ({ subjects }) => {
     );
   };
 
-  const formatCorrectAnswer = (question) => {
-    switch (question.type) {
-      case "multiple":
-        return question.correct.map((idx) => question.answers[idx]).join(", ");
-      case "fill_blank":
-        return question.correct;
-      case "matching":
-        return Object.entries(question.correct)
-          .map(([left, right]) => `${left} → ${right}`)
-          .join(", ");
-      default:
-        return question.answers[question.correct];
-    }
-  };
+const formatCorrectAnswer = (question, questionIndex) => {
+  if (!question) {
+    const q = allQuestions[questionIndex];
+    if (!q) return "Вопрос не найден";
+    question = q;
+  }
 
-  const formatUserAnswer = (answer, type) => {
-    if (!answer) return "Нет ответа";
+  const questionType = question.type || "single";
 
-    switch (type) {
-      case "multiple":
-        return answer
-          .map((idx) => currentQuestions[currentQuestionIndex].answers[idx])
-          .join(", ");
-      case "fill_blank":
-        return answer;
-      case "matching":
-        return Object.entries(answer)
-          .map(([left, right]) => `${left} → ${right}`)
-          .join(", ");
-      default:
-        return currentQuestions[currentQuestionIndex].answers[answer];
-    }
-  };
+  switch (questionType) {
+    case "multiple":
+      return question.correct.map((idx) => question.answers[idx]).join(", ");
+    case "fill_blank":
+      return question.correct;
+    case "matching":
+      return Object.entries(question.correct)
+        .map(([left, right]) => `${left} → ${right}`)
+        .join(", ");
+    default:
+      return question.answers[question.correct];
+  }
+};
+
+const formatUserAnswer = (answer, type, questionIndex) => {
+  if (!answer && answer !== 0) return "Нет ответа";
+
+  const questionType = type || "single";
+  const question =
+    currentQuestions[questionIndex] || allQuestions[questionIndex];
+
+  if (!question) return "Вопрос не найден";
+
+  switch (questionType) {
+    case "multiple":
+      return answer.map((idx) => question.answers[idx]).join(", ");
+    case "fill_blank":
+      return answer;
+    case "matching":
+      return Object.entries(answer)
+        .map(([left, right]) => `${left} → ${right}`)
+        .join(", ");
+    default:
+      return question.answers[answer];
+  }
+};
 
   if (loading) return <div className="loading">Загрузка вопросов...</div>;
   if (!allQuestions.length)
@@ -486,6 +510,7 @@ const Test = ({ subjects }) => {
       </div>
 
       <div className="question-content">
+        <h3 className="question-text">{currentQuestion.question}</h3>
         {renderQuestionContent()}
 
         {showExplanation && currentQuestion.explanation && (
