@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/AppTest-FromUniversity/static/css/main.f8033181.css",
-    "main.js": "/AppTest-FromUniversity/static/js/main.3622a644.js",
-    "static/js/453.23d31b27.chunk.js": "/AppTest-FromUniversity/static/js/453.23d31b27.chunk.js",
-    "index.html": "/AppTest-FromUniversity/index.html",
-    "main.f8033181.css.map": "/AppTest-FromUniversity/static/css/main.f8033181.css.map",
-    "main.3622a644.js.map": "/AppTest-FromUniversity/static/js/main.3622a644.js.map",
-    "453.23d31b27.chunk.js.map": "/AppTest-FromUniversity/static/js/453.23d31b27.chunk.js.map"
+    "main.css": "/static/css/main.f8033181.css",
+    "main.js": "/static/js/main.75ac5bb6.js",
+    "static/js/453.23d31b27.chunk.js": "/static/js/453.23d31b27.chunk.js",
+    "index.html": "/index.html",
+    "main.f8033181.css.map": "/static/css/main.f8033181.css.map",
+    "main.75ac5bb6.js.map": "/static/js/main.75ac5bb6.js.map",
+    "453.23d31b27.chunk.js.map": "/static/js/453.23d31b27.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f8033181.css",
-    "static/js/main.3622a644.js"
+    "static/js/main.75ac5bb6.js"
   ]
 }
