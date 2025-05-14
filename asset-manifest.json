@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/ilnaz-valeev/AppTest-FromUniversity.git/static/css/main.f8033181.css",
-    "main.js": "/ilnaz-valeev/AppTest-FromUniversity.git/static/js/main.498509a2.js",
-    "static/js/453.23d31b27.chunk.js": "/ilnaz-valeev/AppTest-FromUniversity.git/static/js/453.23d31b27.chunk.js",
-    "index.html": "/ilnaz-valeev/AppTest-FromUniversity.git/index.html",
-    "main.f8033181.css.map": "/ilnaz-valeev/AppTest-FromUniversity.git/static/css/main.f8033181.css.map",
-    "main.498509a2.js.map": "/ilnaz-valeev/AppTest-FromUniversity.git/static/js/main.498509a2.js.map",
-    "453.23d31b27.chunk.js.map": "/ilnaz-valeev/AppTest-FromUniversity.git/static/js/453.23d31b27.chunk.js.map"
+    "main.css": "/static/css/main.f8033181.css",
+    "main.js": "/static/js/main.75ac5bb6.js",
+    "static/js/453.23d31b27.chunk.js": "/static/js/453.23d31b27.chunk.js",
+    "index.html": "/index.html",
+    "main.f8033181.css.map": "/static/css/main.f8033181.css.map",
+    "main.75ac5bb6.js.map": "/static/js/main.75ac5bb6.js.map",
+    "453.23d31b27.chunk.js.map": "/static/js/453.23d31b27.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f8033181.css",
-    "static/js/main.498509a2.js"
+    "static/js/main.75ac5bb6.js"
   ]
 }
