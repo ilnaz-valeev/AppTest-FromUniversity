@@ -227,11 +227,11 @@ const cancelTest = () => {
       case "fill_blank":
         return (
           <div className="fill-blank-container">
-            <p className="question-text">
+            {/* <p className="question-text">
               {currentQuestion.question.split("____________")[0]}
               <span className="blank-space">____________</span>
               {currentQuestion.question.split("____________")[1]}
-            </p>
+            </p> */}
             <div className="fill-blank-input-container">
               <input
                 type="text"
