@@ -62,12 +62,48 @@ const Test = ({ subjects }) => {
 
   // Инициализация порядка элементов для вопроса на последовательность
   useEffect(() => {
-    if (
-      currentQuestions.length > 0 &&
-      currentQuestions[currentQuestionIndex]?.type === "sequence"
-    ) {
-      const answers = currentQuestions[currentQuestionIndex].answers;
-      setSequenceOrder(answers.map((text, index) => ({ id: index, text })));
+    const currentQuestion = currentQuestions[currentQuestionIndex];
+    if (!currentQuestion) return;
+
+    const answered = answeredQuestions.find(
+      (q) => q.questionIndex === currentQuestionIndex
+    );
+
+    if (answered) {
+      setIsAnswered(true);
+      setIsAnswerCorrect(answered.isCorrect);
+
+      switch (currentQuestion.type || "single") {
+        case "multiple":
+          setSelectedOptions(answered.selectedAnswer);
+          break;
+        case "fill_blank":
+          setFillBlankAnswer(answered.selectedAnswer);
+          break;
+        case "matching":
+          setMatchingAnswers(answered.selectedAnswer);
+          break;
+        case "sequence":
+          setSequenceOrder(
+            answered.selectedAnswer.map((id) => ({
+              id,
+              text: currentQuestion.answers[id],
+            }))
+          );
+          break;
+        default:
+          setSelectedOptions([answered.selectedAnswer]);
+      }
+    } else {
+      // Сброс только для новых вопросов
+      setSelectedOptions([]);
+      setFillBlankAnswer("");
+      setMatchingAnswers({});
+      if (currentQuestion.type === "sequence") {
+        setSequenceOrder(
+          currentQuestion.answers.map((text, id) => ({ id, text }))
+        );
+      }
     }
   }, [currentQuestionIndex, currentQuestions]);
 
@@ -208,9 +244,7 @@ const Test = ({ subjects }) => {
   };
 
   const resetAnswerState = () => {
-    setSelectedOptions([]);
-    setFillBlankAnswer("");
-    setMatchingAnswers({});
+    // Теперь не сбрасывает выбранные ответы
     setShowExplanation(false);
     setIsAnswered(false);
     setIsAnswerCorrect(null);
