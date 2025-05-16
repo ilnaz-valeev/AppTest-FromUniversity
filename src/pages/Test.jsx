@@ -5,6 +5,17 @@ import "../css/Test.min.css";
 const Test = ({ subjects }) => {
   const { subjectName, topicName } = useParams();
   const navigate = useNavigate();
+
+  // Состояние темы
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    return savedMode
+      ? JSON.parse(savedMode)
+      : window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  // Состояния теста
   const [allQuestions, setAllQuestions] = useState([]);
   const [currentQuestions, setCurrentQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -18,8 +29,20 @@ const Test = ({ subjects }) => {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [fillBlankAnswer, setFillBlankAnswer] = useState("");
   const [matchingAnswers, setMatchingAnswers] = useState({});
+  const [sequenceOrder, setSequenceOrder] = useState([]);
   const questionsPerPage = 5;
 
+  // Применение темы
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-theme");
+    } else {
+      document.body.classList.remove("dark-theme");
+    }
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  // Загрузка вопросов
   useEffect(() => {
     const subject = subjects[subjectName];
     if (subject) {
@@ -37,6 +60,17 @@ const Test = ({ subjects }) => {
     }
   }, [subjectName, topicName, subjects]);
 
+  // Инициализация порядка элементов для вопроса на последовательность
+  useEffect(() => {
+    if (
+      currentQuestions.length > 0 &&
+      currentQuestions[currentQuestionIndex]?.type === "sequence"
+    ) {
+      const answers = currentQuestions[currentQuestionIndex].answers;
+      setSequenceOrder(answers.map((text, index) => ({ id: index, text })));
+    }
+  }, [currentQuestionIndex, currentQuestions]);
+
   const shuffleArray = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -44,6 +78,17 @@ const Test = ({ subjects }) => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  };
+
+  const moveSequenceItem = (fromIndex, toIndex) => {
+    const newOrder = [...sequenceOrder];
+    const [movedItem] = newOrder.splice(fromIndex, 1);
+    newOrder.splice(toIndex, 0, movedItem);
+    setSequenceOrder(newOrder);
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
   };
 
   const loadNextQuestions = () => {
@@ -84,6 +129,11 @@ const Test = ({ subjects }) => {
             JSON.stringify(matchingAnswers) ===
             JSON.stringify(currentQuestion.correct);
           break;
+        case "sequence":
+          isCorrect =
+            JSON.stringify(sequenceOrder.map((item) => item.id)) ===
+            JSON.stringify(currentQuestion.correctSequence);
+          break;
         default:
           isCorrect = selectedOptions[0] === currentQuestion.correct;
       }
@@ -100,6 +150,8 @@ const Test = ({ subjects }) => {
             ? fillBlankAnswer
             : currentQuestion.type === "matching"
             ? matchingAnswers
+            : currentQuestion.type === "sequence"
+            ? sequenceOrder.map((item) => item.id)
             : selectedOption,
         isCorrect,
       },
@@ -164,16 +216,15 @@ const Test = ({ subjects }) => {
     setIsAnswerCorrect(null);
   };
 
-const cancelTest = () => {
-  if (window.confirm("Вы уверены, что хотите завершить тест досрочно?")) {
-    // Сохраняем только отвеченные вопросы
-    const answered = allQuestions.filter((_, index) =>
-      answeredQuestions.some((q) => q.questionIndex === index)
-    );
-    setCurrentQuestions(answered);
-    setTestCompleted(true);
-  }
-};
+  const cancelTest = () => {
+    if (window.confirm("Вы уверены, что хотите завершить тест досрочно?")) {
+      const answered = allQuestions.filter((_, index) =>
+        answeredQuestions.some((q) => q.questionIndex === index)
+      );
+      setCurrentQuestions(answered);
+      setTestCompleted(true);
+    }
+  };
 
   const restartTest = () => {
     setCurrentQuestionIndex(0);
@@ -190,8 +241,47 @@ const cancelTest = () => {
     }
   };
 
+  const SequenceList = ({ items, onMove }) => {
+    const moveUp = (index) => {
+      if (index > 0) onMove(index, index - 1);
+    };
+
+    const moveDown = (index) => {
+      if (index < items.length - 1) onMove(index, index + 1);
+    };
+
+    return (
+      <ul className="sequence-list">
+        {items.map((item, index) => (
+          <li key={index} className="sequence-item">
+            <div className="sequence-controls">
+              <button
+                onClick={() => moveUp(index)}
+                disabled={index === 0 || isAnswered}
+                className="sequence-button"
+              >
+                ↑
+              </button>
+              <span className="sequence-number">{index + 1}</span>
+              <button
+                onClick={() => moveDown(index)}
+                disabled={index === items.length - 1 || isAnswered}
+                className="sequence-button"
+              >
+                ↓
+              </button>
+            </div>
+            <span className="sequence-content">{item.text}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   const renderQuestionContent = () => {
     const currentQuestion = currentQuestions[currentQuestionIndex];
+    if (!currentQuestion) return null;
+
     const questionType = currentQuestion.type || "single";
 
     switch (questionType) {
@@ -227,11 +317,6 @@ const cancelTest = () => {
       case "fill_blank":
         return (
           <div className="fill-blank-container">
-            {/* <p className="question-text">
-              {currentQuestion.question.split("____________")[0]}
-              <span className="blank-space">____________</span>
-              {currentQuestion.question.split("____________")[1]}
-            </p> */}
             <div className="fill-blank-input-container">
               <input
                 type="text"
@@ -298,6 +383,21 @@ const cancelTest = () => {
                 Object.keys(matchingAnswers).length <
                   currentQuestion.leftItems.length
               }
+            >
+              Ответить
+            </button>
+          </div>
+        );
+
+      case "sequence":
+        return (
+          <div className="sequence-question">
+            <p>Расставьте элементы в правильной последовательности:</p>
+            <SequenceList items={sequenceOrder} onMove={moveSequenceItem} />
+            <button
+              className="submit-sequence"
+              onClick={() => handleAnswer()}
+              disabled={isAnswered}
             >
               Ответить
             </button>
@@ -402,51 +502,57 @@ const cancelTest = () => {
     );
   };
 
-const formatCorrectAnswer = (question, questionIndex) => {
-  if (!question) {
-    const q = allQuestions[questionIndex];
-    if (!q) return "Вопрос не найден";
-    question = q;
-  }
+  const formatCorrectAnswer = (question, questionIndex) => {
+    if (!question) {
+      const q = allQuestions[questionIndex];
+      if (!q) return "Вопрос не найден";
+      question = q;
+    }
 
-  const questionType = question.type || "single";
+    const questionType = question.type || "single";
 
-  switch (questionType) {
-    case "multiple":
-      return question.correct.map((idx) => question.answers[idx]).join(", ");
-    case "fill_blank":
-      return question.correct;
-    case "matching":
-      return Object.entries(question.correct)
-        .map(([left, right]) => `${left} → ${right}`)
-        .join(", ");
-    default:
-      return question.answers[question.correct];
-  }
-};
+    switch (questionType) {
+      case "multiple":
+        return question.correct.map((idx) => question.answers[idx]).join(", ");
+      case "fill_blank":
+        return question.correct;
+      case "matching":
+        return Object.entries(question.correct)
+          .map(([left, right]) => `${left} → ${right}`)
+          .join(", ");
+      case "sequence":
+        return question.correctSequence
+          .map((idx) => question.answers[idx])
+          .join(" → ");
+      default:
+        return question.answers[question.correct];
+    }
+  };
 
-const formatUserAnswer = (answer, type, questionIndex) => {
-  if (!answer && answer !== 0) return "Нет ответа";
+  const formatUserAnswer = (answer, type, questionIndex) => {
+    if (!answer && answer !== 0) return "Нет ответа";
 
-  const questionType = type || "single";
-  const question =
-    currentQuestions[questionIndex] || allQuestions[questionIndex];
+    const questionType = type || "single";
+    const question =
+      currentQuestions[questionIndex] || allQuestions[questionIndex];
 
-  if (!question) return "Вопрос не найден";
+    if (!question) return "Вопрос не найден";
 
-  switch (questionType) {
-    case "multiple":
-      return answer.map((idx) => question.answers[idx]).join(", ");
-    case "fill_blank":
-      return answer;
-    case "matching":
-      return Object.entries(answer)
-        .map(([left, right]) => `${left} → ${right}`)
-        .join(", ");
-    default:
-      return question.answers[answer];
-  }
-};
+    switch (questionType) {
+      case "multiple":
+        return answer.map((idx) => question.answers[idx]).join(", ");
+      case "fill_blank":
+        return answer;
+      case "matching":
+        return Object.entries(answer)
+          .map(([left, right]) => `${left} → ${right}`)
+          .join(", ");
+      case "sequence":
+        return answer.map((idx) => question.answers[idx]).join(" → ");
+      default:
+        return question.answers[answer];
+    }
+  };
 
   if (loading) return <div className="loading">Загрузка вопросов...</div>;
   if (!allQuestions.length)
@@ -456,10 +562,23 @@ const formatUserAnswer = (answer, type, questionIndex) => {
   const currentQuestion = currentQuestions[currentQuestionIndex];
 
   return (
-    <div className="test-container">
-      <h2 className="test-title">
-        Тест по {subjectName} {topicName !== "all" && `- ${topicName}`}
-      </h2>
+    <div className={`test-container ${darkMode ? "dark-theme" : ""}`}>
+      <div className="header-container">
+        <h2 className="test-title">
+          Тест по {subjectName} {topicName !== "all" && `- ${topicName}`}
+        </h2>
+        <button
+          className={`theme-toggle ${darkMode ? "dark" : "light"}`}
+          onClick={toggleDarkMode}
+          aria-label={
+            darkMode
+              ? "Переключить на светлую тему"
+              : "Переключить на темную тему"
+          }
+        >
+          {darkMode ? "☀️" : "🌙"}
+        </button>
+      </div>
 
       <div className="progress-container">
         <div className="progress-text">
