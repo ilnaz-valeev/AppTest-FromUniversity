@@ -1,9 +1,11 @@
-// src/pages/Home.js
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { ThemeContext } from "../App";
 import "../css/home.min.css";
 
 const Home = () => {
+  const { darkMode, toggleTheme } = useContext(ThemeContext);
+
   const subjects = [
     {
       name: "Микробиология",
@@ -17,10 +19,21 @@ const Home = () => {
       description: "Химические процессы в живых организмах",
       icon: "🧪",
     },
+    {
+      name: "Нормальная физиология",
+      path: "/test/physiology",
+      description: "Функции органов и систем",
+      icon: "🧠",
+    },
   ];
 
   return (
-    <div className="home-container">
+    <div className={`home-container ${darkMode ? "dark-theme" : ""}`}>
+      <button onClick={toggleTheme} className="theme-toggle">
+        <span className="icon">{darkMode ? "☀️" : "🌙"}</span>
+        {darkMode ? "" : ""}
+      </button>
+
       <h1>Выберите предмет для тестирования</h1>
 
       <div className="subjects-grid">

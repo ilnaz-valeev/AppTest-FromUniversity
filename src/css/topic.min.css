@@ -1,1 +1,134 @@
 .topics-container{max-width:800px;margin:2rem auto;padding:2rem;background-color:#f8f9fa;border-radius:12px;-webkit-box-shadow:0 4px 12px rgba(0,0,0,.1);box-shadow:0 4px 12px rgba(0,0,0,.1);font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;text-align:center}.topics-container h2{color:#2c3e50;margin-bottom:2rem;font-size:1.8rem}.topics-container .topics-list{display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:1rem;margin-bottom:2rem}.topics-container .topics-list .topic-link{text-decoration:none}.topics-container .topics-list .topic-link .topic-btn{width:100%;padding:1.2rem;background-color:#fff;border:2px solid #dee2e6;border-radius:8px;cursor:pointer;-webkit-transition:all .2s ease;transition:all .2s ease;font-size:1rem;color:#495057;font-weight:500;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;min-height:80px}.topics-container .topics-list .topic-link .topic-btn:hover{background-color:#f1f3f5;border-color:#adb5bd;-webkit-transform:translateY(-2px);transform:translateY(-2px);-webkit-box-shadow:0 4px 8px rgba(0,0,0,.1);box-shadow:0 4px 8px rgba(0,0,0,.1)}.topics-container .topics-list .topic-link .topic-btn:active{-webkit-transform:translateY(0);transform:translateY(0)}.topics-container .all-test-btn{display:inline-block;padding:1rem 2rem;background-color:#4e73df;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:500;cursor:pointer;-webkit-transition:all .2s ease;transition:all .2s ease;text-decoration:none;margin-top:1rem}.topics-container .all-test-btn:hover{background-color:#3a56b0;-webkit-transform:translateY(-2px);transform:translateY(-2px);-webkit-box-shadow:0 4px 8px rgba(0,0,0,.1);box-shadow:0 4px 8px rgba(0,0,0,.1)}.topics-container .all-test-btn:active{-webkit-transform:translateY(0);transform:translateY(0)}.topics-container .not-found{color:#dc3545;font-size:1.2rem;text-align:center;padding:2rem}/*# sourceMappingURL=topic.min.css.map */
+/* Для Topics.js */
+.topics-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .topics-container h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+  }
+  
+  .topics-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .topic-btn {
+    width: 100%;
+    padding: 1.2rem;
+    background-color: #fff;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    color: #495057;
+    font-weight: 500;
+    min-height: 80px;
+  }
+  
+  .topic-btn:hover {
+    background-color: #f1f3f5;
+    border-color: #adb5bd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .all-test-btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: #4e73df;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    margin-top: 1rem;
+  }
+  
+  .all-test-btn:hover {
+    background-color: #3a56b0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  /* Dark Theme */
+  .topics-container.dark-theme {
+    background-color: #16213e;
+    color: #e6e6e6;
+  }
+  
+  .topics-container.dark-theme h2 {
+    color: #f8f9fa;
+  }
+  
+  .topics-container.dark-theme .topic-btn {
+    background-color: #1d2b51;
+    border-color: #2a2a3a;
+    color: #e6e6e6;
+  }
+  
+  .topics-container.dark-theme .topic-btn:hover {
+    background-color: #233564;
+    border-color: #4e73df;
+  }
+  
+  .topics-container.dark-theme .all-test-btn {
+    background-color: #4e73df;
+    color: #fff;
+  }
+  
+  .topics-container.dark-theme .all-test-btn:hover {
+    background-color: #3a56b0;
+  }
+  
+  .not-found {
+    color: #dc3545;
+    font-size: 1.2rem;
+    padding: 2rem;
+  }
+  
+  /* Theme Toggle Button (same as in home) */
+  .theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: linear-gradient(145deg, #4e73df, #3a56b0);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+  }
+  
+  .theme-toggle .icon {
+    font-size: 1.2em;
+  }
+  

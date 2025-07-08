@@ -72,6 +72,7 @@ const Test = ({ subjects }) => {
     if (answered) {
       setIsAnswered(true);
       setIsAnswerCorrect(answered.isCorrect);
+      setShowExplanation(!answered.isCorrect && currentQuestion.explanation);
 
       switch (currentQuestion.type || "single") {
         case "multiple":
@@ -96,16 +97,18 @@ const Test = ({ subjects }) => {
       }
     } else {
       // Сброс только для новых вопросов
-      setSelectedOptions([]);
-      setFillBlankAnswer("");
-      setMatchingAnswers({});
-      if (currentQuestion.type === "sequence") {
-        setSequenceOrder(
-          currentQuestion.answers.map((text, id) => ({ id, text }))
-        );
+      if (currentQuestionIndex >= answeredQuestions.length) {
+        setSelectedOptions([]);
+        setFillBlankAnswer("");
+        setMatchingAnswers({});
+        if (currentQuestion.type === "sequence") {
+          setSequenceOrder(
+            currentQuestion.answers.map((text, id) => ({ id, text }))
+          );
+        }
       }
     }
-  }, [currentQuestionIndex, currentQuestions]);
+  }, [currentQuestionIndex, currentQuestions, answeredQuestions]);
 
   const shuffleArray = (array) => {
     const shuffled = [...array];
